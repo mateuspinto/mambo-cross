@@ -1,0 +1,6 @@
+*.elf
+*.o
+*.a
+api/emit_*.c
+api/emit_*.h
+pie/pie*
