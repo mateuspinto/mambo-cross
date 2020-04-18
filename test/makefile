@@ -1,4 +1,4 @@
-CFLAGS+= -lpthread ../libelf/lib/libelf.a -static
+CFLAGS+= -lpthread -static
 
 ifeq ($(findstring arm, $(TARGET)), arm)
 	PIE_ENCODER = ../pie/pie-arm-encoder.o ../pie/pie-thumb-encoder.o
@@ -10,7 +10,7 @@ else ifeq ($(TARGET),aarch64)
 endif
 
 ifndef IS_NATIVE
-	CFLAGS+=libelf/lib/libelf.a
+	CFLAGS+= ../libelf/lib/libelf.a
 else
 	CFLAGS+= -DIS_NATIVE -lelf
 endif
