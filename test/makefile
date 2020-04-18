@@ -9,6 +9,12 @@ else ifeq ($(TARGET),aarch64)
 	PIE_DECODER = ../pie/pie-a64-decoder.o
 endif
 
+ifndef IS_NATIVE
+	CFLAGS+=libelf/lib/libelf.a
+else
+	CFLAGS+= -DIS_NATIVE -lelf
+endif
+
 .PHONY: clean
 
 all: self_modifying signals load_store

@@ -33,7 +33,7 @@
 #if IS_NATIVE
 #include <libelf.h>
 #else
-#include "../libelf/lib/libelf.h"
+#include "libelf/lib/libelf.h"
 #endif
 
 #include "dbm.h"

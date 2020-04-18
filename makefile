@@ -78,10 +78,12 @@ ifdef PLUGINS
 	CFLAGS += -DPLUGINS_NEW 
 endif
 
+HOST_ARCH=$(shell $(CC) -dumpmachine | awk -F '-' '{print $$1}')
+
 .PHONY: pie libelf clean cleanall test
 
 all:
-	$(info MAMBO: target architecture "$(TARGET)". Using cross-compile "$(CROSS_COMPILER)".)
+	$(info MAMBO: Host arch "$(HOST_ARCH)". Target arch "$(TARGET)". Using cross-compile "$(CROSS_COMPILER)".)
 	@$(MAKE) --no-print-directory pie && $(MAKE) --no-print-directory libelf && $(MAKE) --no-print-directory dbm
 
 pie:
