@@ -19,7 +19,6 @@ OPTS+=-DDBM_TRACES #-DTB_AS_TRACE_HEAD #-DBLXI_AS_TRACE_HEAD
 #OPTS+=-DCC_HUGETLB -DMETADATA_HUGETLB
 
 CC = gcc
-CROSS_COMPILER=
 CFLAGS+=-D_GNU_SOURCE -std=gnu99 -O2 
 
 LDFLAGS+=-static -ldl -Wl,-Ttext-segment=$(or $(TEXT_SEGMENT),0xa8000000)
@@ -34,6 +33,7 @@ NATIVE=$(shell $(CC) -dumpmachine | awk -F '-' '{print $$1}')
 ifeq ($(findstring arm, $(NATIVE)), arm)
 	# Compiling in native ARM32
 
+	CROSS_COMPILER=
 	IS_NATIVE=1
 	CFLAGS+=-mcpu=native
 	TARGET_ARCH=arm
@@ -41,6 +41,7 @@ ifeq ($(findstring arm, $(NATIVE)), arm)
 else ifeq ($(NATIVE),aarch64)
 	# Compiling in native AARCH32
 
+	CROSS_COMPILER=
 	IS_NATIVE=1
 	CFLAGS+=-mcpu=native
 	TARGET_ARCH=aarch64
