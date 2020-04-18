@@ -32,7 +32,6 @@ LN_S = ln -s
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 
-CC = $(CROSS_COMPILER)gcc
 CFLAGS = -g -O2 -static
 CPPFLAGS = 
 LDFLAGS = 

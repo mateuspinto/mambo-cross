@@ -1,31 +1,4 @@
-CC=gcc
 CFLAGS= -Os -Wall -std=c99 #-DPIE_AUTOINC
-
-ifeq ($(findstring arm, $(TARGET_ARCH)), arm)
-	NATIVE_TARGETS = arm thumb
-
-	
-	ifeq ($(IS_NATIVE),0)
-		CROSS_COMPILER=arm-linux-gnu-
-		CFLAGS+= -static -g 
-	else
-		CROSS_COMPILER=
-		CFLAGS+=-mcpu=native 
-	endif
-
-endif
-ifeq ($(TARGET_ARCH),aarch64)
-	NATIVE_TARGETS = a64
-	
-	ifeq ($(IS_NATIVE),0)
-		CROSS_COMPILER=aarch64-linux-gnu-
-		CFLAGS+= -static -g 
-	else
-		CROSS_COMPILER=
-		CFLAGS+=-mcpu=native 
-	endif
-
-endif
 
 .SECONDARY:
 .PHONY: native print_arch all pie clean
