@@ -25,7 +25,7 @@ OPTS+=-DDBM_TRACES #-DTB_AS_TRACE_HEAD #-DBLXI_AS_TRACE_HEAD
 CFLAGS+=-D_GNU_SOURCE -std=gnu99 -O2 
 
 LDFLAGS+=-static -ldl -Wl,-Ttext-segment=$(or $(TEXT_SEGMENT),0xa8000000)
-LIBS=-lpthread libelf/lib/libelf.a
+LIBS=-lpthread 
 HEADERS=*.h makefile
 INCLUDES=-I/usr/include/libelf
 SOURCES= dispatcher.S common.c dbm.c traces.c syscalls.c dispatcher.c signals.c util.S
@@ -34,7 +34,7 @@ SOURCES+=elf_loader/elf_loader.o
 
 # Defining MAMBO Flags
 ifeq ($(findstring arm, $(TARGET)), arm)
-	CFLAGS += -march=armv7-a -mfpu=neon
+	CFLAGS += -march=armv7-a -mfpu=neon 
 	HEADERS += api/emit_arm.h api/emit_thumb.h
 	PIE = pie/pie-arm-encoder.o pie/pie-arm-decoder.o pie/pie-arm-field-decoder.o
 	PIE += pie/pie-thumb-encoder.o pie/pie-thumb-decoder.o pie/pie-thumb-field-decoder.o
@@ -44,6 +44,10 @@ ifeq ($(findstring arm, $(TARGET)), arm)
 
 	ifndef IS_NATIVE
 		CROSS_COMPILER=arm-linux-gnu-
+		LIBS+=libelf/lib/libelf.a
+	else
+		LIBS+=-lelf
+		CFLAGS+= -DIS_NATIVE
 	endif
 
 else ifeq ($(TARGET),aarch64)
@@ -55,6 +59,10 @@ else ifeq ($(TARGET),aarch64)
 
 	ifndef IS_NATIVE
 		CROSS_COMPILER=aarch64-linux-gnu-
+		LIBS+=libelf/lib/libelf.a
+	else
+		LIBS+=-lelf
+		CFLAGS+= -DIS_NATIVE
 	endif
 
 endif
@@ -64,10 +72,10 @@ CC=$(CROSS_COMPILER)gcc
 export CC
 export NATIVE_TARGETS
 export TARGET
-
+export IS_NATIVE
 
 ifdef PLUGINS
-	CFLAGS += -DPLUGINS_NEW
+	CFLAGS += -DPLUGINS_NEW 
 endif
 
 .PHONY: pie libelf clean cleanall test

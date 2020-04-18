@@ -55,7 +55,13 @@ DISTFILES = \
 	config.sub configure configure.in COPYING.LIB INSTALL install-sh \
 	Makefile.in mkinstalldirs README stamp-h.in VERSION libelf.pc.in
 
+ifeq ($(IS_NATIVE),)
 all: all-recursive all-local
+else
+$(info libelf is not required in native architecture. passing..)
+all: 
+endif
+
 check: check-recursive check-local
 install: install-recursive install-local
 uninstall: uninstall-recursive uninstall-local

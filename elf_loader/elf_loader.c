@@ -20,7 +20,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
+#if IS_NATIVE
+#include <libelf.h>
+#else
 #include "../libelf/lib/libelf.h"
+#endif
+
 #include <fcntl.h>
 #include <inttypes.h>
 #include <errno.h>

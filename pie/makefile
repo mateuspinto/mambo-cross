@@ -16,7 +16,7 @@ all: thumb arm a64
 pie: pie-$(ARCH)-decoder.o pie-$(ARCH)-encoder.o pie-$(ARCH)-field-decoder.o
 
 pie-$(ARCH)-%.o: pie-$(ARCH)-%.c pie-$(ARCH)-%.h
-	$(CROSS_COMPILER)$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 pie-$(ARCH)-%.h: generate_%.rb $(ARCH).txt
 	ruby $< $(ARCH) header > $@

@@ -30,7 +30,11 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "libelf/lib/libelf.h"
+#if IS_NATIVE
+#include <libelf.h>
+#else
+#include "../libelf/lib/libelf.h"
+#endif
 
 #include "dbm.h"
 #include "common.h"
