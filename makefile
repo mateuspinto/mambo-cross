@@ -1,7 +1,3 @@
-ifndef ARCH
-	ARCH=aarch64
-endif
-
 #PLUGINS+=plugins/branch_count.c
 #PLUGINS+=plugins/soft_div.c
 #PLUGINS+=plugins/tb_count.c
@@ -23,8 +19,8 @@ OPTS+=-DDBM_TRACES #-DTB_AS_TRACE_HEAD #-DBLXI_AS_TRACE_HEAD
 #OPTS+=-DCC_HUGETLB -DMETADATA_HUGETLB
 
 CC = gcc
-CFLAGS+=-D_GNU_SOURCE -g -std=gnu99 -O2 -static
-#CFLAGS+=-mcpu=native
+CROSS_COMPILER=
+CFLAGS+=-D_GNU_SOURCE -std=gnu99 -O2 
 
 LDFLAGS+=-static -ldl -Wl,-Ttext-segment=$(or $(TEXT_SEGMENT),0xa8000000)
 LIBS=-lpthread libelf/lib/libelf.a
@@ -34,22 +30,58 @@ SOURCES= dispatcher.S common.c dbm.c traces.c syscalls.c dispatcher.c signals.c 
 SOURCES+=api/helpers.c api/plugin_support.c api/branch_decoder_support.c api/load_store.c
 SOURCES+=elf_loader/elf_loader.o
 
-ifeq ($(findstring arm, $(ARCH)), arm)
+NATIVE=$(shell $(CC) -dumpmachine | awk -F '-' '{print $$1}')
+ifeq ($(findstring arm, $(NATIVE)), arm)
+	# Compiling in native ARM32
+
+	IS_NATIVE=1
+	CFLAGS+=-mcpu=native
+	TARGET_ARCH=arm
+
+else ifeq ($(NATIVE),aarch64)
+	# Compiling in native AARCH32
+
+	IS_NATIVE=1
+	CFLAGS+=-mcpu=native
+	TARGET_ARCH=aarch64
+
+else
+	# Cross-compiling using debug options
+	IS_NATIVE=0
+	CFLAGS+=-g
+
+	# Set AARCH64 as target architecture if no one is set
+	ifndef TARGET_ARCH
+		TARGET_ARCH=aarch64
+	endif
+
+endif
+
+# Defining MAMBO Flags
+ifeq ($(findstring arm, $(TARGET_ARCH)), arm)
 	CFLAGS += -march=armv7-a -mfpu=neon
 	HEADERS += api/emit_arm.h api/emit_thumb.h
 	PIE = pie/pie-arm-encoder.o pie/pie-arm-decoder.o pie/pie-arm-field-decoder.o
 	PIE += pie/pie-thumb-encoder.o pie/pie-thumb-decoder.o pie/pie-thumb-field-decoder.o
 	SOURCES += scanner_thumb.c scanner_arm.c
 	SOURCES += api/emit_arm.c api/emit_thumb.c
-	CROSS_COMPILER =
-endif
-ifeq ($(ARCH),aarch64)
+
+	ifeq ($(IS_NATIVE),0)
+		CROSS_COMPILER=arm-linux-gnu-
+	endif
+
+else ifeq ($(TARGET_ARCH),aarch64)
 	HEADERS += api/emit_a64.h
 	PIE += pie/pie-a64-field-decoder.o pie/pie-a64-encoder.o pie/pie-a64-decoder.o
 	SOURCES += scanner_a64.c
 	SOURCES += api/emit_a64.c
-	CROSS_COMPILER = aarch64-linux-gnu-
+
+	ifeq ($(IS_NATIVE),0)
+		CROSS_COMPILER=aarch64-linux-gnu-
+	endif
+
 endif
+
 
 ifdef PLUGINS
 	CFLAGS += -DPLUGINS_NEW
@@ -58,14 +90,14 @@ endif
 .PHONY: pie libelf clean cleanall test
 
 all:
-	$(info MAMBO: target architecture "$(ARCH)". Using cross-compile "$(CROSS_COMPILER)".)
+	$(info MAMBO: target architecture "$(TARGET_ARCH)". Using cross-compile "$(CROSS_COMPILER)".)
 	@$(MAKE) --no-print-directory pie && $(MAKE) --no-print-directory libelf && $(MAKE) --no-print-directory dbm
 
 pie:
-	@$(MAKE) --no-print-directory -C pie/ native C_ARCH=aarch64
+	@$(MAKE) --no-print-directory -C pie/ native TARGET_ARCH=$(TARGET_ARCH) IS_NATIVE=$(IS_NATIVE)
 
 libelf:
-	@$(MAKE) --no-print-directory -C libelf/ ARCH=aarch64
+	@$(MAKE) --no-print-directory -C libelf/
 
 %.o: %.c %.h
 	$(CROSS_COMPILER)$(CC) $(CFLAGS) -c -o $@ $<

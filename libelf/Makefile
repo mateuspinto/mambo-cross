@@ -18,18 +18,6 @@
 
 # @(#) $Id: Makefile.in,v 1.30 2008/05/23 08:17:56 michael Exp $
 
-ifndef ARCH
-	ARCH=aarch64
-endif
-
-ifeq ($(findstring arm, $(ARCH)), arm)
-	CROSS_COMPILER =
-endif
-ifeq ($(ARCH),aarch64)
-	CROSS_COMPILER = aarch64-linux-gnu-
-endif
-
-
 instroot =
 
 prefix = /usr/local

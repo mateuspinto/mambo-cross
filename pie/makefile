@@ -1,17 +1,30 @@
-ifndef C_ARCH
-	C_ARCH=aarch64
-endif
-
 CC=gcc
-CFLAGS= -Os -Wall -g -std=c99 -static #-DPIE_AUTOINC
+CFLAGS= -Os -Wall -std=c99 #-DPIE_AUTOINC
 
-ifeq ($(findstring arm, $(C_ARCH)), arm)
+ifeq ($(findstring arm, $(TARGET_ARCH)), arm)
 	NATIVE_TARGETS = arm thumb
-	CROSS_COMPILER =
+
+	
+	ifeq ($(IS_NATIVE),0)
+		CROSS_COMPILER=arm-linux-gnu-
+		CFLAGS+= -static -g 
+	else
+		CROSS_COMPILER=
+		CFLAGS+=-mcpu=native 
+	endif
+
 endif
-ifeq ($(C_ARCH),aarch64)
+ifeq ($(TARGET_ARCH),aarch64)
 	NATIVE_TARGETS = a64
-	CROSS_COMPILER = aarch64-linux-gnu-
+	
+	ifeq ($(IS_NATIVE),0)
+		CROSS_COMPILER=aarch64-linux-gnu-
+		CFLAGS+= -static -g 
+	else
+		CROSS_COMPILER=
+		CFLAGS+=-mcpu=native 
+	endif
+
 endif
 
 .SECONDARY:
@@ -20,7 +33,7 @@ endif
 native: print_arch $(NATIVE_TARGETS)
 	
 print_arch:
-	$(info PIE: target architecture "$(C_ARCH)")
+	$(info PIE: target architecture "$(TARGET_ARCH)")
 
 all: thumb arm a64
 
