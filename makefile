@@ -61,6 +61,10 @@ endif
 
 CC=$(CROSS_COMPILER)gcc
 
+export CC
+export NATIVE_TARGETS
+export TARGET
+
 
 ifdef PLUGINS
 	CFLAGS += -DPLUGINS_NEW
@@ -73,10 +77,10 @@ all:
 	@$(MAKE) --no-print-directory pie && $(MAKE) --no-print-directory libelf && $(MAKE) --no-print-directory dbm
 
 pie:
-	@$(MAKE) --no-print-directory -C pie/ CC=$(CC) NATIVE_TARGETS=$(NATIVE_TARGETS) native
+	@$(MAKE) --no-print-directory -C pie/ native
 
 libelf:
-	@$(MAKE) --no-print-directory -C libelf/ CC=$(CC)
+	@$(MAKE) --no-print-directory -C libelf/
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -97,4 +101,4 @@ api/emit_%.h: pie/pie-%-encoder.c api/generate_emit_wrapper.rb
 	ruby api/generate_emit_wrapper.rb $< header > $@
 
 test:
-	@$(MAKE) --no-print-directory all && $(MAKE) --no-print-directory -C test/ CC=$(CC) TARGET=$(TARGET) 
+	@$(MAKE) --no-print-directory all && $(MAKE) --no-print-directory -C test/
