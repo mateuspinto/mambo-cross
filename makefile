@@ -76,7 +76,7 @@ pie:
 	@$(MAKE) --no-print-directory -C pie/ CC=$(CC) NATIVE_TARGETS=$(NATIVE_TARGETS) native
 
 libelf:
-	@$(MAKE) --no-print-directory -C libelf/
+	@$(MAKE) --no-print-directory -C libelf/ CC=$(CC)
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -88,10 +88,13 @@ clean:
 	rm -f dbm.elf elf_loader/elf_loader.o
 
 cleanall:
-	@$(MAKE) --no-print-directory clean && $(MAKE) --no-print-directory -C pie/ clean && $(MAKE) --no-print-directory -C libelf/ clean
+	@$(MAKE) --no-print-directory clean && $(MAKE) --no-print-directory -C pie/ clean && $(MAKE) --no-print-directory -C libelf/ clean && $(MAKE) --no-print-directory -C test/ clean
 
 api/emit_%.c: pie/pie-%-encoder.c api/generate_emit_wrapper.rb
 	ruby api/generate_emit_wrapper.rb $< > $@
 
 api/emit_%.h: pie/pie-%-encoder.c api/generate_emit_wrapper.rb
 	ruby api/generate_emit_wrapper.rb $< header > $@
+
+test:
+	@$(MAKE) --no-print-directory all && $(MAKE) --no-print-directory -C test/ CC=$(CC) TARGET=$(TARGET) 
