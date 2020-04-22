@@ -6,7 +6,7 @@ CFLAGS= -Os -Wall -std=c99 #-DPIE_AUTOINC
 native: print_arch $(NATIVE_TARGETS)
 	
 print_arch:
-	$(info PIE: target architecture "$(ARCH)")
+	$(info PIE: Compiling architecture.)
 
 all: thumb arm a64
 
